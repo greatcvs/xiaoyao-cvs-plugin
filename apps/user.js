@@ -5,6 +5,7 @@ import {
 } from "../components/index.js";
 import moment from 'moment';
 import Common from "../components/Common.js";
+import { Common as MiaoCommon } from '#miao'
 import {
 	isV3
 } from '../components/Changelog.js';
@@ -12,6 +13,7 @@ import gsCfg from '../model/gsCfg.js';
 import fs from "fs";
 import YAML from 'yaml'
 import User from "../model/user.js"
+import Acommon from '../../../lib/common/common.js'
 
 export const rule = {
 	userInfo: {
@@ -119,11 +121,15 @@ export async function gcPaylog(e) {
 			EX: time
 		});
 		if (isV3) {
+			const isGroup = e.isGroup
 			let { payLog } = (await import(`file://${_path}/plugins/genshin/apps/payLog.js`))
 			let pl = (new payLog())
 			e.isGroup = false;
 			pl.e = e
 			await pl.getAuthKey(e)
+			if(isGroup){
+				e.isGroup = isGroup
+			}
 			e._reply(sendMsg[1]);
 			return true;
 			// await (new payLog()).payLog(e)
@@ -158,16 +164,20 @@ export async function gclog(e) {
 	// e.reply(e.msg)
 	let sendMsg = [];
 	e.reply("抽卡记录获取中请稍等...")
-	e._reply = e.reply;
-	e.reply = (msg) => {
-		sendMsg.push(msg)
-	}
+	// e._reply = e.reply;
+	// e.reply = (msg) => {
+	// 	sendMsg.push(msg)
+	// }
 	if (isGet) {
-		sendMsg = [...sendMsg, ...[1, `uid:${e.uid}`, e.msg]]
+		sendMsg = [...sendMsg, ...[`uid:${e.uid}\n`, e.msg]]
+		e.reply(sendMsg)
 	} else {
 		if (isV3) {
 			let gclog = (await import(`file://${_path}/plugins/genshin/model/gachaLog.js`)).default
-			await (new gclog(e)).logUrl()
+			let data = await (new gclog(e)).logUrl()
+			if (data) {
+				MiaoCommon.render('genshin', 'html/gacha/gacha-all-log', data, { e })
+			}
 		} else {
 			let {
 				bing
@@ -175,8 +185,9 @@ export async function gclog(e) {
 			e.isPrivate = true;
 			await bing(e)
 		}
+        // e._reply(sendMsg)
+		// utils.replyMake(e, sendMsg, 1)
 	}
-	await utils.replyMake(e, sendMsg, 1)
 	let time = (configData.gclogEx || 5) * 60
 	redis.set(`xiaoyao:gclog:${e.user_id}`, Math.floor(Date.now() / 1000) + time, { //数据写入缓存避免重复请求
 		EX: time
@@ -192,7 +203,7 @@ async function getAuthKey(e, user,data={
 	e.region = getServer(e.uid)
 	let authkeyrow = await user.getData("authKey", data);
 	if (!authkeyrow?.data) {
-		e.reply(`uid:${e.uid},authkey获取失败：` + (authkeyrow.message.includes("登录失效") ? "请重新绑定stoken" : authkeyrow.message))
+		e.reply(`uid:${e.uid},authkey获取失败：` + (authkeyrow.message.includes("登录失效") ? "请重新绑定stoken（发送 #扫码登录）" : authkeyrow.message))
 		return false;
 	}
 	return authkeyrow.data["authkey"];

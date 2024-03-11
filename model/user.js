@@ -838,13 +838,22 @@ export default class user {
                 v2Sk = await this.getData('getByStokenV2', { headers: { Cookie: this.cookies } }, false)
             }
             let list = []
-            for (let item of ['崩坏星穹铁道', '原神']) {
+            for (let item of ['原神']) {
                 let result = await this.getData("userGameInfo", this.getDataList(item)[0], false)
                 if (result?.retcode != 0) {
                     continue;
                 }
                 list.push(...result?.data?.list)
             }
+            // for (let item of ['原神','崩坏星穹铁道']) {
+            //     let result = await this.getData("userGameInfo", this.getDataList(item)[0], false)
+            //     if (result?.retcode != 0) {
+            //         continue;
+            //     }
+            //     if(list.length==0){
+            //         list.push(...result?.data?.list)
+            //     }
+            // }
             if (list.length == 0) return false;
             let uids = []
             for (let s of list) {

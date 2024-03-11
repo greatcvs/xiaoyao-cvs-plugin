@@ -6,7 +6,7 @@ export default class mysTopLogin {
         this.e = e;
         this.init();
         //消息提示以及风险警告
-        this.sendMsgUser = `免责声明:您将通过扫码完成获取米游社sk以及ck。\n本Bot将不会保存您的登录状态。\n我方仅提供米游社查询及相关游戏内容服务,若您的账号封禁、被盗等处罚与我方无关。\n害怕风险请勿扫码~`
+        this.sendMsgUser = '免责声明:您将通过扫码完成获取米游社sk以及ck。\n本Bot将不会保存您的登录状态。\n我方仅提供米游社查询及相关游戏内容服务,若您的账号封禁、被盗等处罚与我方无关。\n害怕风险请勿扫码~\n\n\n请将码保存至本地，使用米游社app扫码！'
         this.sendMsgUserPassLogin = `免责声明:您将通过密码完成获取米游社sk以及ck。\n本Bot将不会保存您的账号和密码。\n我方仅提供米游社查询及相关游戏内容服务,若您的账号封禁、被盗等处罚与我方无关。\n害怕风险请勿发送账号密码~`
         this.sendMsgPay = `格式参考：#原神充值 6(商品ID)\n可通过【#商品列表】获取可操作商品`
         this.sendMsgOrderReg = `消息格式无法识别，格式参考：#订单查询16347*****(订单号),100000000(uid)`
@@ -34,17 +34,17 @@ export default class mysTopLogin {
         return res
     }
     async GetQrCode(ticket) {
-        await utils.redisSet(this.e.user_id, "GetQrCode", { GetQrCode: 1 }, 60 * 5) //设置5分钟缓存避免重复触发
+        await utils.redisSet(this.e.user_id, "GetQrCode", { GetQrCode: 1 }, 30 * 5) //设置3分钟缓存避免重复触发
         let res;
         let RedisData = await utils.redisGet(this.e.user_id, "GetQrCode")
-        for (let n = 1; n < 60; n++) {
+        for (let n = 1; n < 30; n++) {
             await utils.sleepAsync(5000)
             res = await this.user.getData("qrCodeQuery", {
                 device: this.device, ticket
             },false)
             if (res?.data?.stat == "Scanned" && RedisData.GetQrCode == 1) {
                 Bot.logger.mark(JSON.stringify(res))
-                await this.e.reply("二维码已扫描，请确认登录", true)
+                await this.e.reply("二维码已扫描，请确认登录", false,{ at :true})
                 RedisData.GetQrCode++;
             }
             if (res?.data?.stat == "Confirmed") {
@@ -54,7 +54,7 @@ export default class mysTopLogin {
         }
         await utils.redisDel(this.e.user_id, 'GetQrCode')
         if (!res?.data?.payload?.raw) {
-            await this.e.reply("验证超时", true)
+            await this.e.reply("验证超时", false,{ at :true})
             return false
         }
         let raw = JSON.parse(res?.data?.payload?.raw)

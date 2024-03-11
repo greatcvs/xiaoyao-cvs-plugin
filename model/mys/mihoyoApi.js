@@ -275,14 +275,14 @@ export default class miHoYoApi {
 			qrCodeLogin: {
 				url: `${mys.hk4_sdk}/hk4e_cn/combo/panda/qrcode/fetch`,
 				body: {
-					app_id: mys.app_id,
+					app_id: 12,
 					device: data.device
 				}
 			},
 			qrCodeQuery: {
 				url: `${mys.hk4_sdk}/hk4e_cn/combo/panda/qrcode/query`,
 				body: {
-					app_id: mys.app_id,
+					app_id: 12,
 					device: data.device,
 					ticket: data.ticket
 				}

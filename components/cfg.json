@@ -2,5 +2,14 @@
 	"sys": {
 		"help": false,
 		"Note": false
+	},
+	"ck": {
+		"sk": true
+	},
+	"Atlas": {
+		"all": true
+	},
+	"sr": {
+		"Search": true
 	}
 }

@@ -11,7 +11,7 @@ import {
 const _path = process.cwd();
 export const rule = {
 	qrCodeLogin: {
-		reg: `^#(扫码|二维码|辅助)(登录|绑定|登陆)$`,
+		reg: `^#(星铁|原神)?(扫码|二维码|辅助)(登录|绑定|登陆)$`,
 		describe: "扫码登录"
 	},
 	UserPassMsg: {
@@ -71,7 +71,7 @@ export async function qrCodeLogin(e, { render }) {
 		scale: 1.2, retMsgId: true
 	})
 	let r = await e._reply(sendMsg)
-	utils.recallMsg(e, r, 30) //默认30，有需要请自行修改
+	utils.recallMsg(e, r, 90) //默认30，有需要请自行修改
 	e.reply = e._reply
 	res = await Mys.GetQrCode(res.data.ticket)
 	if (!res) return true;
